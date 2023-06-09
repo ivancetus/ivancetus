@@ -1,34 +1,46 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
+// interactivity
+npm i framer-motion
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+// typography, not shipping
+npm i -D @tailwindcss/typography
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+// prism
+go to prism website, download prism-tommorrow.css
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+// other syntax highlight plugin
+npm i rehype-prism-plus
+npm i rehype-code-titles
 
-## Learn More
+// contentlayer
+npm i contentlayer next-contentlayer date-fns
+follow by editing config files for next.config.js and tscongfig.json
 
-To learn more about Next.js, take a look at the following resources:
+// add prism-plus.css
+https://github.com/timlrx/rehype-prism-plus#styling
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+// sass
+npm i -D sass
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+// SEO
+npm i next-sitemap
 
-## Deploy on Vercel
+// in-post heading link
+npm i rehype-slug
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+// image optimization
+npm i image-size plaiceholder sharp unist-util-visit @types/unist
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+// to solve for not being able to import local image from .mdx ?
+npm install remark-mdx-images
+
+// table of contents
+npm install github-slugger
+npm install -D @types/github-slugger
+
+// page load progress bar, not needed
+npm install nprogress
+npm install -D @types/nprogress
+
+// use nextjs loading instead
+```
