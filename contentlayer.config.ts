@@ -25,6 +25,7 @@ const contentLayerConfig = makeSource({
   contentDirPath: "content",
   documentTypes: [Post],
   mdx: {
+    resolveCwd: "relative",
     esbuildOptions: (options) => {
       options.loader = {
         ...options.loader,
