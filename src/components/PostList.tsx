@@ -13,7 +13,7 @@ export default function PostList({ post }: Props) {
   return (
     <li className="group transition-colors">
       <Link href={`/posts/${slug}`} className="">
-        <article className="space-y-2 rounded-md p-4 transition-colors group-hover:bg-zinc-200 dark:group-hover:bg-gray-800 xl:grid xl:grid-cols-4  xl:items-baseline xl:space-y-0">
+        <article className="space-y-2 rounded-md p-4 transition-colors group-hover:bg-slate-200 dark:group-hover:bg-gray-800 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
           <dl>
             <dt className="sr-only">Published on</dt>
             <dd className="font-medium leading-6 text-gray-500 transition-colors dark:text-gray-400 md:text-sm xs:text-xs">
@@ -29,13 +29,13 @@ export default function PostList({ post }: Props) {
             <div className="prose prose-sm max-w-none text-gray-500 transition-colors dark:text-gray-400 md:prose-base xs:prose-sm">
               {description}
             </div>
-            <div className="text-xs text-gray-500 transition-colors dark:text-gray-400">
+            <div className="flex flex-wrap text-left text-xs text-gray-500 transition-colors dark:text-gray-400 leading-loose">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="flex-wrap items-start p-1 py-0.5 mr-2 rounded-md dark:bg-zinc-700 bg-zinc-300 dark:text-zinc-300 text-zinc-500"
+                  className="border-solid border border-zinc-300 items-start p-1 py-0 mr-2 mb-2 rounded-sm dark:bg-zinc-700 bg-zinc-200 dark:text-zinc-300 text-zinc-500"
                 >
-                  #{tag}
+                  {tag}
                 </span>
               ))}
             </div>
