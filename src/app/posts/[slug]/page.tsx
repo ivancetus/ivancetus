@@ -6,6 +6,7 @@ import PostHeader from "@/components/PostHeader";
 import PostBody from "@/components/PostBody";
 import PostFooter from "@/components/PostFooter";
 import TableOfContents from "@/components/TableOfContents";
+import Comment from "@/components/Comment";
 
 const sortedPosts = allPosts.sort((a, b) =>
   compareDesc(new Date(a.date), new Date(b.date))
@@ -62,6 +63,9 @@ export default function PostPage({ params }: { params: { slug: string } }) {
       </div>
       <div className="pb-8">
         <PostFooter prevPost={prevPost} nextPost={nextPost} />
+      </div>
+      <div className="divide-y divide-zinc-300 pb-8 transition-colors dark:divide-zinc-500">
+        <Comment />
       </div>
     </article>
   );

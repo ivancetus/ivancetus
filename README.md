@@ -43,4 +43,7 @@ npm install nprogress
 npm install -D @types/nprogress
 
 // use nextjs loading instead
+
+// comment system, github oauth
+npm install @giscus/react
 ```

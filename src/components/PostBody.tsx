@@ -8,7 +8,7 @@ export default function PostBody({ children }: Props) {
   return (
     <div
       className={`
-        ${styles.postBody} prose dark:prose-invert mx-auto transition-colors
+        ${styles.postBody} prose dark:prose-invert mx-auto transition-colors xs:prose-sm
       `}
     >
       {children}

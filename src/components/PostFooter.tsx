@@ -7,17 +7,18 @@ type Props = {
 export default function PostFooter({ prevPost, nextPost }: Props) {
   return (
     <footer>
-      <div className="flex items-center gap-4 pt-4 text-base font-medium sm:flex-row sm:justify-between xl:gap-8 xl:pt-8 md:flex-col">
+      <div className="flex items-center gap-4 pt-4 text-base font-medium lg:gap-8 lg:pt-8 md:flex-col">
         {prevPost ? (
           <div className="basis-6/12">
-            <h2 className="mb-1 text-xs uppercase tracking-wide text-gray-500 transition-colors dark:text-gray-400">
-              PREVIOUS POST
+            <h2 className="mb-1 text-xs uppercase tracking-wide text-gray-500 transition-colors dark:text-gray-400 md:text-center">
+              <span className="md:hidden">&#129092;</span> PREVIOUS POST{" "}
+              <span className="hidden md:inline">&#129093;</span>
             </h2>
             <Link
               href={`/posts/${prevPost.slug}`}
-              className="text-primary-500 transition-colors hover:text-primary-600 dark:hover:text-primary-400"
+              className="text-primary-500 transition-colors hover:text-primary-600 dark:hover:text-primary-400 md:text-center hover:cursor-pointer"
             >
-              ← {prevPost.title}
+              {prevPost.title}
             </Link>
           </div>
         ) : (
@@ -25,14 +26,15 @@ export default function PostFooter({ prevPost, nextPost }: Props) {
         )}
         {nextPost && (
           <div className="basis-6/12 text-right">
-            <h2 className="mb-1 text-xs uppercase tracking-wide text-gray-500 transition-colors dark:text-gray-400 sm:text-right">
-              NEXT POST
+            <h2 className="mb-1 text-xs uppercase tracking-wide text-gray-500 transition-colors dark:text-gray-400 md:text-center">
+              NEXT POST <span className="md:hidden">&#129094;</span>
+              <span className="hidden md:inline">&#129095;</span>
             </h2>
             <Link
               href={`/posts/${nextPost.slug}`}
-              className="block text-primary-500 transition-colors hover:text-primary-600 dark:hover:text-primary-400 sm:text-right"
+              className="block text-primary-500 transition-colors hover:text-primary-600 dark:hover:text-primary-400 md:text-center hover:cursor-pointer"
             >
-              {nextPost.title} →
+              {nextPost.title}
             </Link>
           </div>
         )}

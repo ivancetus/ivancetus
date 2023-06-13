@@ -5,6 +5,9 @@ import { Montserrat } from "next/font/google";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ThemeContextProvider from "@/context/ThemeContextProvider";
+import MenuMobileContextProvider from "@/context/MenuMobileContextProvider";
+import StickyScroll from "@/components/StickyScroll";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -23,24 +26,29 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${montserrat.variable} font-mont bg-light dark:bg-dark w-full min-h-screen text-dark dark:text-light`}
-      >
-        <Script id="theme-switcher">
-          {`
+      <ThemeContextProvider>
+        <MenuMobileContextProvider>
+          <body
+            className={`${montserrat.variable} font-mont bg-light dark:bg-dark w-full min-h-screen text-dark dark:text-light `}
+          >
+            <Script id="theme-switcher">
+              {`
             if (localStorage.theme === "dark" || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
               document.documentElement.classList.add('dark')
             } else {
               document.documentElement.classList.remove('dark')
             }
           `}
-        </Script>
-        <Navbar />
-        <main className="w-full h-auto z-0 inline-block px-48 md:px-24 sm:px-8">
-          {children}
-        </main>
-        <Footer />
-      </body>
+            </Script>
+            <Navbar />
+            <main className="w-full h-auto z-0 inline-block px-48 md:px-24 sm:px-8">
+              {children}
+            </main>
+            <Footer />
+            <StickyScroll />
+          </body>
+        </MenuMobileContextProvider>
+      </ThemeContextProvider>
     </html>
   );
 }

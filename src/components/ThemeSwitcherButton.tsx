@@ -1,25 +1,25 @@
-'use client'
+"use client";
 
-import useThemeSwitcher from "@/components/hooks/useThemeSwitcher"
-import { SunIcon, MoonIcon } from "@/components/Icons"
-export default function ThemeSwitcherButton({ className="" }) {
-  const [mode, setMode] = useThemeSwitcher()
+import { SunIcon, MoonIcon } from "@/components/Icons";
+import { themeContext } from "@/context/ThemeContextProvider";
+import { useContext } from "react";
 
+export default function ThemeSwitcherButton({ className = "" }) {
+  const { theme, setTheme } = useContext(themeContext);
   return (
     <button
-        onClick={() => setMode(mode === "light" ? "dark" : "light")}
-        className={`
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className={`
           flex-col flex rounded-full p-1 z-10 absolute right-32 top-4 sm:right-12 xs:right-8
-          ${mode === "light" ? "bg-dark text-light" : "bg-light text-dark"}
+          ${theme === "light" ? "bg-dark text-light" : "bg-light text-dark"}
           ${className}
         `}
-      >
-        {
-          mode === "dark" ?
-            <SunIcon className={"fill-dark"} />
-            :
-            <MoonIcon className={"fill-dark"} />
-        }
+    >
+      {theme === "dark" ? (
+        <SunIcon className={"fill-dark"} />
+      ) : (
+        <MoonIcon className={"fill-dark"} />
+      )}
     </button>
-  )
+  );
 }

@@ -30,6 +30,7 @@ const contentLayerConfig = makeSource({
       options.loader = {
         ...options.loader,
         ".png": "dataurl",
+        ".jpg": "dataurl",
       };
       return options;
     },

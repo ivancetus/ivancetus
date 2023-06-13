@@ -1,0 +1,92 @@
+---
+title: MDX Writing Note
+description: some note about how to write mdx in this blog
+slug: mdx-note
+date: 2023-06-10
+type: Post
+tags: ['mdx','note']
+---
+import CustomInput from "../../src/components/mdx/CustomInput";
+
+## Import React Component
+`import at the top level`\
+`"import" at the start of a line is forbidden! breaks mdx bundler`
+<CustomInput />
+
+## metadata
+```
+title: The title of the post.
+description: Description of the post.
+slug: path-to-the-post
+date: 2023-06-13
+type: Post
+tags: ['note','mdx','otherstuff']
+```
+
+## Block Quote
+> this is a block quote
+
+## Table of Content
+Only detect h2, h3, cannot contain special characters, e.g. ":"
+
+## Inline Codeblock
+`code block`
+
+## External Link
+[link](https://ivancetus.com)
+
+## codeblock Syntax Highlighting style is prism-tomorrow
+addtional command including
+- show line number
+  ```tsx:file.tsx showLineNumbers
+  function MyApp({ Component, pageProps }: AppProps) {
+    return (
+      <ThemeProvider attribute="class">
+        <Head>
+          <meta name="viewport" content="viewport-fit=cover" />
+        </Head>
+        <LayoutWrapper>
+          <Component {...pageProps} />
+        </LayoutWrapper>
+      </ThemeProvider>
+    );
+  }
+  ```
+- highlight specific code segments
+  ```tsx:file.tsx showLineNumbers {2,4-5}
+  function MyApp({ Component, pageProps }: AppProps) {
+    return (
+      <ThemeProvider attribute="class">
+        <Head>
+          <meta name="viewport" content="viewport-fit=cover" />
+        </Head>
+        <LayoutWrapper>
+          <Component {...pageProps} />
+        </LayoutWrapper>
+      </ThemeProvider>
+    );
+  }
+  ```
+- show difference
+    ```diff-js showLineNumbers {3-4}
+    const a = 1;
+    - a = 2;
+    + a = 2;
+    a = 3;
+    ```
+- show title
+    ```python:Hello.py
+    print("Hello world!")
+    ```
+
+## Show Image
+have to place images at two places at the same time (inside public and public/images), since vercel build will automatically pull all images under public folder to a new folder 'images'
+![](/poe.png)
+
+## Horizontal Line
+---
+
+## Rich Text?
+**bold**
+
+_italic_

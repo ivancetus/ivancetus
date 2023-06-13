@@ -1,0 +1,875 @@
+---
+title: How to set up an end-to-end type safe project and deploy to VPS and vercel
+description: type safe project, deployed to vps
+slug: graphql-prisma-nextjs
+date: 2023-06-12
+type: Post
+tags: ['GraphQL', 'Prisma', 'NextJS', 'Typescript', 'PyCharm-pro', 'api']
+---
+
+My goal is to learn GraphQL in this project, along the way, I also learned how to set up a GraphQL api server build with nodejs, and deploy to my linode vps.
+
+
+## Part 1 Frontend
+1. install latest NodeJS LTS
+2. install latest Stable PyCharm Pro
+3. create new Next.js project in PyCharm Pro
+  > - Specifiy project location, e.g. graphql-nextjs
+  > - More Settings
+  > - npx create-next-app@latest
+  > - Create TypeScript project
+  > - new window
+  > - ESLint **Yes**
+  > - Tailwind CSS **Yes**
+  > - 'src/' directory **Yes**
+  > - App Router **Yes**
+  > - customize default import alias **No**
+  > - Alt+F12 open Terminal `npm run dev`
+  > - should be greeted by nextjs default page
+
+
+4. clean up unwanted display
+  > leave only these three lines
+  > ```CSS
+  > // app/global.css
+  >
+  > @tailwind base;
+  > @tailwind components;
+  > @tailwind utilities;
+  > ```
+  > clean up page content, leave only these
+  > ```TSX
+  > // app/page.tsx
+  >
+  > export default function Home() {
+  >   return (
+  >     <main>
+  >       <h1>Hello</h1>
+  >     </main>
+  >   )
+  > }
+  > ```
+
+5. style the page
+  ```TSX
+  <main className='bg-zinc-800 flex-col h-screen w-full flex items-center justify-center p-4 gap-y-12 overflow-scroll'>
+    <h1 className='text-4xl text-yellow-500'>
+      Hello
+    <h1>
+  </main>
+  ```
+6. Create types.ts in root directory
+  ```typescript
+  // types.ts
+  // manually defining types
+
+  export type Message = {
+    body: string
+  }
+
+  export type User = {
+    name: string
+    messages: Message[]
+  }
+  ```
+7. Create mock data in app/page.tsx
+  ```TSX
+  export default function Home() {
+    const users: User[] = [{
+      name: "Sabin Adams",
+      messages: [{
+        body: "Hey there!"
+      }, {
+        body: "Whats up!"
+      }]
+    }]
+
+    return ...
+  }
+  ```
+
+8. Create src/components/UserDisplay.tsx
+  ```TSX
+  // UserDisplay.tsx
+
+  import { User } from "../../types"
+
+  type Props = {
+    user: User
+  }
+
+  export default function UserDisplay({ user }: Props) {
+    return (
+      <div className='flex gap-x-24 justify-center'>
+        <div className='rounded-sm flex items-center justify-center drop-shadow-md bg-neutral-700 w-48 h-20'>
+          <p className='text-xl text-gray-200 font-bold'>
+            {user.name}
+          </p>
+        </div>
+      </div>
+    )
+  }
+  ```
+
+9. try import UserDisplay.tsx in app/page.tsx, and delete `<h1>` tag
+  ```TSX
+  // app/page.tsx
+
+  import { User } from "../../types"
+  import UserDisplay from "@/components/UserDisplay"
+
+  ...
+    return (
+      <main ...>
+        {
+          users.map((user, index) => <UserDisplay user={user} key={index} />)
+        }
+      </main>
+    )
+  }
+  ```
+
+10. Create src/components/MessageDisplay.tsx
+  ```TSX
+  // MessageDisplay.tsx
+
+  import { Message } from "../../types"
+
+  type Props = {
+    index: number
+    message: Message
+  }
+
+  export default function MessageDisplay({ message, index }: Props) {
+    return (
+      <div className='group mb-2 shrink-0 rounded-lg flex items-center justify-center drop-shadow-md bg-zinc-700 w-48 h-20 relative'>
+        <p className='text-sm text-gray-200 font-bold px-4'>
+          {message.body}
+        </p>
+      </div>
+    )
+  }
+  ```
+11. Update UserDisplay.tsx
+  ```TSX
+  // UserDisplay.tsx
+
+  import MessageDisplay from "@/components/MessageDisplay"
+
+  ...
+
+  export default function UserDisplay({ user }: Props) {
+    return (
+      <div className='flex gap-x-24 justify-center'>
+        <div className='rounded-sm flex items-center justify-center drop-shadow-md bg-neutral-700 w-48 h-20'>
+          <p className='text-xl text-gray-200 font-bold'>
+            {user.name}
+          </p>
+        </div>
+        <div>
+          {
+            user.messages.map((message, index) => <MessageDisplay key={index} index={index} message={message} />)
+          }
+        </div>
+      </div>
+    )
+  }
+  ```
+
+12. Create src/components/Branch.tsx
+  ```TSX
+  // Branch.tsx
+
+  export default function Branch({ trunk }: {trunk: boolean}) {
+    return (
+      <div
+        className={`
+          ${!trunk ? "border-l-4" : ""}
+          ${trunk ? "w-24" : "w-16"}
+          ${trunk ? "-translate-x-36" : "-translate-x-32"}
+          scale-y-110 transition ease-in-out duration-300 group-hover:border-teal-400
+          h-full border-blue-500 border-b-4 absolute -translate-y-10
+        `}
+      />
+    )
+  }
+  ```
+13. Update MessageDisplay.tsx
+  ```TSX
+  // MessageDisplay.tsx
+
+  import Branch from "@/components/Branch"
+
+    ...
+
+    return (
+      <div ...>
+        <Branch trunk={index === 0} />
+        <p ...>
+          {message.body}
+        </p>
+      </div>
+    )
+  ```
+
+## Part 2 & Part 3 GraphQL API:
+14. create a new project, e.g. graphql-server
+  > - PyCharm Pro new Node.js project
+  > - install development packages
+  > `npm install -D typescript @types/node prisma ts-node-dev`
+  > - in terminal `npx tsc --init`
+
+15. edit package.json, later when deployed using pm2, will need the start script
+  ```json
+  // package.json
+
+  "scripts": {
+    "test": ...,
+    "dev": "ts-node-dev src/index.ts",
+    "start": "ts-node-dev src/index.ts"
+  }
+  ```
+  > create src/index.ts
+  ```ts
+  // src/index.ts
+
+  console.log('hello')
+  ```
+  > check by running `npm run dev` should see hello being printed
+
+16. Setup a postgreSQL database in VPS, Unbuntu
+  > - assuming already have a linux machine running and updated
+  > - install PostgreSQL `$ sudo apt install postgresql postgresql-contrib`
+  > - check if started `$ sudo systemctl start postgresql.service`
+  > - switch user to postgres `$ sudo -i -u postgres`
+  > - create a user `$ createuser --interactive`, example user: ivan
+  > - create a default database for that user `$ createdb ivan`
+  > - logout `$ exit` and connect with newly created user `$ sudo -u ivan psql`
+  > - create a password for that user `# \password`,
+  > - create a database for this project `# CREATE DATABASE graphql_server;`
+  > - `# \q` to exit
+  > - allow remote connection to database
+  > `$ sudo nano /etc/postgresql/15/main/postgresql.conf`
+  > `listen_addresses = '*'`
+  > `$ sudo nano /etc/postgresql/15/main/pg_hba.conf`
+  > below IPv4 connection, add
+  > `host  all   all   0.0.0.0/0     scram-sha-256`
+  > restart postgresql
+  > `$ sudo systemctl restart postgresql `
+  > - the connection url is as follows
+  > `postgresql://[user]:[password]@[VPS-ip-address]:5432/[database]`
+  > example
+  > `postgresql://ivan:secret123@123.12.34.56:5432/graphql_server`
+  > - make sure firewall inbound port 5432 is allowed
+
+17. initialize prisma and set database url
+  `npx prisma init`
+  > in project direcoty, edit .env
+  `DATABASE_URL="postgresql://ivan:secret123@123.12.34.56:5432/graphql_server"`
+
+
+18.  edit prisma/schema.prisma
+  ```
+  ...
+
+  model User {
+    id Int @id @default(autoincrement())
+    name String
+    createdAt DateTime @default(now())
+    messages Message[]
+  }
+
+  model Message {
+    id Int @id @default(autoincrement())
+    body String
+    createdAt DateTime @default(now())
+    userId Int
+    user User @relation(fields: [userId], references: [id])
+  }
+  ```
+
+19. update database with these table  `npx prisma migrate dev --name init`
+20. create prisma/seed.ts to add data to database
+  ```typescript
+  // prisma/seed.ts
+  // everytime a migration is performed, a Prisma Client is generated
+  import {PrismaClient} from "@prisma/client"
+
+  const prisma = new PrismaClient()
+
+  async function main() {
+    try {
+      // Delete all 'User' and 'Message' records
+      await prisma.message.deleteMany({})
+      console.log('Deleted records in message table')
+
+      await prisma.user.deleteMany({})
+      console.log('Deleted records in user table')
+
+      // await prisma.$queryRaw`ALTER TABLE Message AUTO_INCREMENT = 1`
+      // console.log('reset message auto increment to 1')
+      //
+      // await prisma.$queryRaw`ALTER TABLE User AUTO_INCREMENT = 1`
+      // console.log('reset user auto increment to 1')
+
+      // (Re)create dummy 'User' and 'Message' records
+      await prisma.user.create({
+        data: {
+          name: "Jack",
+          messages: {
+            create: [
+              {
+                body: "A Note for Jack."
+              },
+              {
+                body: "Another Note for Jack."
+              },
+            ],
+          },
+        },
+      })
+      console.log('user Jack created')
+
+      await prisma.user.create({
+        data: {
+          name: "Ryan",
+          messages: {
+            create: [
+              {
+                body: "A Note for Ryan."
+              },
+              {
+                body: "Another Note for Ryan."
+              },
+            ],
+          },
+        },
+      })
+      console.log('user Ryan created')
+
+      await prisma.user.create({
+        data: {
+          name: "Adam",
+          messages: {
+            create: [
+              {
+                body: "A Note for Adam."
+              },
+              {
+                body: "Another Note for Adam."
+              },
+            ],
+          },
+        },
+      })
+      console.log('user Adam created')
+
+    } catch (e){
+      console.log(e)
+      process.exit(1)
+
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
+
+  main()
+  ```
+21. edit package.json
+  ```json
+  ...
+    "prisma": {
+      "seed": "ts-node-dev prisma/seed.ts"
+    },
+  "scripts": {
+    ...
+  },
+  ...
+  ```
+22. run command to add data to database
+    `npx prisma db seed`
+23. install graphql server and graphql
+    `npm install graphql graphql-yoga`
+24. to start graphql server, edit src/index.ts
+  ```typescript
+  // index.ts
+
+  import { createServer } from "node:http"
+  import { createYoga } from "graphql-yoga"
+  import { schema } from "./schema"
+
+  // grab port number from .env, if not set, use 4000
+  const port = Number(process.env.API_PORT) || 4000
+
+  // provide a graphql schema
+  const yoga = createYoga({ schema })
+
+  const server = createServer(yoga)
+
+  server.listen(port, () => {
+    console.log(`GraphQL server started at http://localhost:${port}/graphql`)
+  })
+  ```
+  > create a example GraphQL Schema, src/schema.ts
+  ```typescript
+  // src/schema.ts
+
+  import { createSchema } from 'graphql-yoga'
+
+  export const schema = createSchema({
+    typeDefs: /* GraphQL */ `
+      type Query {
+        hello: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        hello: () => 'world'
+      }
+    }
+  })
+  ```
+  > start server `npm run dev`
+25. decide how to handle GraphQL Schema
+  > - code first, build schema based on code, using **Pothos**
+  > - schema first, manually write schema, then code based on that
+
+26. using Pothos to build schema `npm install @pothos/core`
+  > create src/builder.ts
+  ```typescript
+  // builder.ts
+
+  import SchemaBuilder from "@pothos/core"
+
+  export const builder = new SchemaBuilder({})
+  ```
+  > GraphQL has some specific data types, in schema.prisma the filed createdAt has DateTime type, which is not supported by default`Int, Float, String, Boolean, ID`, to let **pothos** know there will be a DateTime type, install the community package graphql-scalars
+  > `npm install graphql-scalars`
+
+  ```typescript
+  // builder.ts
+
+  import SchemaBuilder from "@pothos/core"
+  import { DateResolver } from "graphql-scalars"
+
+  export const builder = new SchemaBuilder<{
+    Scalars: {
+      Date: { Input: Date, Output: Date }
+    }
+  }>({})
+
+  builder.addScalarType("Date", DateResolver, {})
+  ```
+  > define GraphQL object types, using pothos plugin
+  `npm install @pothos/plugin-prisma`
+  > then edit schema.prisma, add the following
+  ```
+  generator pothos {
+    provider = "prisma-pothos-types"
+  }
+  ```
+  > generate prisma client again `npm run build`
+  ```json
+  // package.json
+
+  "script": {
+    ...
+    "build": "npm i && npx prisma generate"
+  }
+  ```
+  > to let builder know prisma generated types, a reference of PrismaClient is needed, create src/db.ts
+  ```typescript
+  // src/db.ts
+
+  import { PrismaClient } from "@prisma/client"
+
+  export const prisma = new PrismaClient()
+  ```
+  > update builder.ts
+  ```typescript
+  // builder.ts
+
+  import SchemaBuilder from "@pothos/core"
+  import { DateResolver } from "graphql-scalars"
+  import PrismaPlugin from "@pothos/plugin-prisma"
+  import type PrismaTypes from "@pothos/plugin-prisma/generated"
+  import { prisma } from "./db"
+
+  export const builder = new SchemaBuilder<{
+    Scalars: {
+      Date: { Input: Date, Output: Date }
+    },
+    PrismaTypes: PrismaTypes,
+  }>({
+    plugins: [PrismaPlugin],
+    prisma: {
+      client: prisma,
+    },
+  })
+
+  builder.addScalarType("Date", DateResolver, {})
+  ```
+
+27. before continuing, if showing type error despite using exact same code, check package installed, make sure not to install @graphql-yoga/node, and check original article to see if any updates are available.
+
+28. Define GraphQL types, create src/model/User.ts
+  ```typescript
+  // src/model/User.ts
+
+  import { builder } from "../builder"
+
+  builder.prismaObject("User", {
+    fields: t => ({
+        id: t.exposeID("id"),
+        name: t.exposeString("name"),
+        messages: t.relation("messages")
+    })
+  })
+
+  /*
+type User {
+  id: ID!
+  messages: [Message!]!
+  name: String!
+}
+ */
+  ```
+29. create src/model/Message.ts
+  ```typescript
+  import { builder } from "../builder"
+
+  builder.prismaObject("Message", {
+    fields: (t) => ({
+      id: t.exposeID("id"),
+      body: t.exposeString("body"),
+      createdAt: t.expose("createdAt", {
+        type: "Date",
+      }),
+    }),
+  })
+
+  /*
+type Message {
+  body: String!
+  createdAt: Date!
+  id: ID!
+}
+ */
+  ```
+30. update builder.ts
+  ```typescript
+  ...
+
+  /* type Query {...}*/
+  builder.queryType({})
+
+
+  builder.addScalarType("Date", DateResolver, {})
+  ```
+
+31. update User.ts, to handle graphql query for users
+  ```typescript
+  ...
+  import { prisma } from "../db"
+
+  builder.prismaObject (...)
+
+  builder.queryField("users", (t) => t.prismaField({
+    type: ["User"],
+    resolve: async (query, root, args, ctx, info) => {
+      return prisma.user.findMany({ ...query })
+    }
+  }))
+  ```
+32. generate a graphql schema, using src/schema.ts
+  ```typescript
+  // src/schema.ts
+
+  import { builder } from "./builder"
+  import "./model/User"
+  import "./model/Message"
+
+  export const schema = builder.toSchema({})
+  ```
+33. check if user query is used by graphql api `npm run dev`
+34. navigate to Explorer, should see users query exposed, click execute query to see the result
+
+## Part 4 Connect front and back
+**To make sure types in front are in sync with data from api.**
+
+35. GraphQL Codegen
+> going back to **the frontend project (graphql-nextjs)**, then install some dependencies,
+> `npm install graphql`
+> -D means the following will only run in development mode
+> `npm i -D @graphql-codegen/cli @graphql-codegen/typed-document-node @graphql-codegen/typescript @graphql-codegen/typescript-operations`
+
+
+36. create a file codegen.yml at root directory
+  ```yml
+  schema: http://localhost:4000/graphql
+  documents: "./src/**/*.graphql"
+  generates:
+    ./src/graphql/generated.ts:
+      plugins:
+        - typescript
+        - typescript-operations
+        - typed-document-node
+  ```
+  > add codegen script to package.json
+  ```json
+  // package.json
+
+  "script": {
+    ...
+    "codegen": "graphql-codegen"
+  }
+  ```
+37. prepare query, src/graphql/users.query.graphql
+  ```
+  query GetUsers {
+    users {
+      name
+      messages {
+        body
+      }
+    }
+  }
+  ```
+
+38. start graphql-server `npm run dev`
+39. **back to frontend project** `npm run codegen`
+40. check src/graphql/generated.ts
+
+41. define types using fetched api info in types.ts
+  ```typescript
+  // types.ts
+
+  import type { GetUsersQuery } from "./graphql/generated"
+
+  // type just need one entry, hence [0]
+  export type Message = GetUsersQuery["users"][0]["messages"][0]
+  export type User = GetUsersQuery["users"][0]
+  ```
+
+
+42. since this project is using NextJS's new App Router, query api using **urql** have to be done on the client component, and wrapping _app around Provider means app/layout.tsx also have to be a client component, which kind of defeat the purpose of using App Router. Instead of urql, this project will use Apollo Client, and use its latest experimental library.
+
+43. install Apollo Client
+  `npm install @apollo/client@alpha @apollo/experimental-nextjs-app-support`
+  > to use apllo client inside server component, create lib/client.tsx
+  ```tsx
+  // src/lib/client.tsx
+
+  import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client"
+  import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc"
+
+  export const { getClient } = registerApolloClient(() => {
+    return new ApolloClient({
+      cache: new InMemoryCache(),
+      link: new HttpLink({
+        // define API_URL in root/.env.local, API_URL=""
+        uri: process.env["API_URL"] || "http://localhost:4000/graphql"
+
+        // you can disable result caching here if you want to
+        // (this does not work if you are rendering your page with `export const dynamic = "force-static"`)
+        // fetchOptions: { cache: "no-store" },
+      })
+    })
+  })
+  ```
+
+
+44. make graphql query in app/page.tsx, fetch data from the running graphql API server
+  ```tsx
+  // app/page.tsx
+
+  ...
+  import { GetUsersDocument } from "@/graphql/generated"
+  import { getClient } from "@/lib/client"
+
+  export default async function Home() {
+    const query = GetUsersDocument
+    const  { data }  = await getClient().query({ query })
+
+    return (
+      <main ...>
+        {
+          data.users.map((user, index) => <UserDisplay user={user} key={index} />)
+        }
+      </main>
+    )
+  }
+  ```
+45. run the nextjs dev server, should be seeing list of users and their messages
+  `npm run dev`
+
+
+## Part 5 deploy and publish
+46.  Push these two projects to Github
+  > graphql-nextjs, graphql-server
+  >
+  > Git commit (if already adding files to git)
+  menu > Git > Share Project On Github
+
+47.  deploy and start graphql api server on VPS, in this example, using the same VPS that host postgresql database server
+  > #### connect via ssh
+  > `ssh user@vps-ip`
+  > #### setup environment
+  > install node.js using [nvm](https://github.com/nvm-sh/nvm)
+  > `$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash`
+  >
+  > `
+  > $ export NVM_DIR="$HOME/.nvm"
+  > [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # > This loads nvm
+  > [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/> bash_completion"  # This loads nvm bash_completion
+  > `
+  >
+  > check nvm version `nvm --version`
+  >
+  > install latest lts node `nvm install --lts`
+  >
+  > select desirable node version `nvm use 18`
+  >
+  > check node, npm version
+  > `$ node --version`
+  > `$ npm --version`
+  >
+  > install pm2 globally, to manage node.js application
+  > `$ npm install -g pm2`
+  > verify install
+  > `$ pm2 --version`
+  >
+  > clone project from github to VPS, command below is using ssh to connect to github, will have to set up a key pair first, or just use the https to connect
+  > `~$ git clone git@github.com:ivancetus/graphql_server.git`
+  > `~$ cd graphql_server`
+  >
+  > setup database url
+  > `~graphql_server$ sudo nano .env`
+  > ```
+  > DATABASE_URL=""postgresql://ivan:secret123@localhost:5432/graphql_server""
+  > ```
+  >
+  > initialize project
+  > `~/graphql_server$ npm run build`
+  >
+  > should see two generated messages
+  > ```
+  > Generated Prisma Client ...
+  > Generated Pothos integration ...
+  > ```
+  > start graphql api server
+  > `~/graphql_server$ pm2 start npm --name "graphql_server" -- start`
+  >
+  > use reload to update any change on the server, e.g. after  editing .env file
+  > `$ pm2 reload graphql_server`
+  > additionally, make pm2 automatically start when system reboot
+  > `$ pm2 startup`
+  > execute additional command based on what's shown on screen (if any)
+  > `$ pm2 save`
+  >
+  > install nginx for reverse proxy
+  > `$ sudo apt install nginx -y`
+  > verify install
+  > `$ nginx -v`
+  >
+  > visit vps-ip, should see the default page from nginx
+  >
+  > remove the symbolic link for default nginx page
+  > `$ sudo rm /etc/nginx/sites-enabled/default`
+  >
+  > add nginx config file for graphql erver
+  > `$ sudo nano /etc/nginx/sites-available/graphql_server `
+  >
+  > ```
+  > server {
+  >   listen 80;
+  >   listen [::]:80;
+  >   server_name api.yourdomainname.com;
+  >
+  >   location / {
+  >     proxy_pass http://localhost:4000/graphql;
+  >     proxy_http_version 1.1;
+  >     proxy_set_header Upgrade $http_upgrade;
+  >     proxy_set_header Connection 'upgrade';
+  >     proxy_set_header Host $host;
+  >     proxy_cache_bypass $http_upgrade;
+  >   }
+  > }
+  > ```
+  > ctrl+x, y, enter
+  >
+  > make a symbolic link to nginx/sites-enabled
+  > `$ sudo ln -s /etc/nginx/sites-available/graphql_server /etc/nginx/sites-enabled/`
+  > check if any errors in nginx config setting
+  > `$ sudo nginx -t`
+  > restart nginx service
+  > `$ sudo systemctl restart nginx`
+
+48.  visit `http://api.yourdomainname.com`, should see graphql yoga interface
+49.  enable ssl on the api server, through [certbot](https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal)
+> check if snap is installed `$ which snap`
+  > make sure snap is up-to-date
+  > `$ sudo snap install core; sudo snap refresh core`
+  >
+  > if previously installed certbot using an OS package manager, remove it first, refer to the above link on how to remove certbot
+  >
+  > to check if already installed `$ which certbot`
+  >
+  > install certbot using snap
+  > `$ sudo snap install --classic certbot`
+  >
+  > create symbolic link from snap dir to /usr
+  > `$ sudo ln -s /snap/bin/certbot /usr/bin/certbot`
+  >
+  > install certificate
+  > `$ sudo certbot --nginx -d api.ivancetus.com`
+  >
+  > vist `https://api.yourdomainname.com`
+  >
+  > API deployment complete!
+
+50. as for the frontend, instead of deploy it to VPS - [Video: deploy nextjs to vps](https://www.youtube.com/watch?v=kHL1FGg0XDA), in this example, it will be hosted on vercel
+  > - login to vercel
+  > - connect to your github account
+  > - hit start deploying
+  > - try import graphql-nextjs from github
+  > - setup environment variable, remember to press add
+  > `API_URL`
+  > `https://api.yourdomainname.com`
+  > - deploy
+
+
+additional info, after multiple attemp to start/stop pm2, clean up pm2 status table using:
+
+  > `$ pm2 save`
+  > `$ pm2 kill`
+  > `$ pm2 resurrect`
+
+
+## Reference
+>**Prisma.io**\
+>End-To-End Type-Safety with GraphQL, Prisma & React\
+[Article Part1](https://www.prisma.io/blog/e2e-type-safety-graphql-react-1-I2GxIfxkSZ)
+,
+[Video Part1](https://www.youtube.com/watch?v=ottWptFQJgk)\
+[Article Part2](https://www.prisma.io/blog/e2e-type-safety-graphql-react-2-j9mEyHY0Ej)
+,
+[Video Part2](https://www.youtube.com/watch?v=6-P8swlC1jg)\
+[Article Part3](https://www.prisma.io/blog/e2e-type-safety-graphql-react-3-fbV2ZVIGWg)
+,
+[Video Part3](https://www.youtube.com/watch?v=g6JPWcU9tjQ)\
+[Article Part4](https://www.prisma.io/blog/e2e-type-safety-graphql-react-4-JaHA8GbkER)
+,
+[Video Part4](https://www.youtube.com/watch?v=-nINYq2QMlA)
+
+>**Planetscale**\
+[Additonal information for Part2](https://planetscale.com/blog/how-to-seed-a-database-with-prisma-and-next-js)
+
+>**The Guild (GraphQL Yoga)**\
+>[error import at @graphql-yoga/node (don't use this package)](https://the-guild.dev/graphql/yoga-server/docs)
+
+>**Apollo Client**\
+Using Apollo Client with Next.js 13\
+[Video](https://www.youtube.com/watch?v=buhHZksGM84)\
+[Article1](https://www.apollographql.com/blog/apollo-client/next-js/how-to-use-apollo-client-with-next-js-13/)\
+[Article2](https://www.apollographql.com/blog/announcement/frontend/using-apollo-client-with-next-js-13-releasing-an-official-library-to-support-the-app-router/)

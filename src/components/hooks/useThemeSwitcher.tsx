@@ -1,56 +1,55 @@
-'use client'
+"use client";
 
-import {useEffect, useState} from "react"
+import { createContext, useEffect, useState } from "react";
 
 export default function useThemeSwitcher() {
-  const preferDarkQuery = "(prefers-color-scheme: dark)"
-  const [mode, setMode] = useState("")
+  const preferDarkQuery = "(prefers-color-scheme: dark)";
+  const [theme, setTheme] = useState("");
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(preferDarkQuery)
-    const userPref = window.localStorage.getItem("theme")
-
+    const mediaQuery = window.matchMedia(preferDarkQuery);
+    const userPref = window.localStorage.getItem("theme");
     const handleChange = () => {
-      if(userPref) {
-        let check = userPref === "dark" ? "dark" : "light"
-        setMode(check)
+      if (userPref) {
+        let check = userPref === "dark" ? "dark" : "light";
+        setTheme(check);
 
         // tailwindcss need to add dark class in html
-        if(check === "dark") {
-          document.documentElement.classList.add("dark")
+        if (check === "dark") {
+          document.documentElement.classList.add("dark");
         } else {
-          document.documentElement.classList.remove("dark")
+          document.documentElement.classList.remove("dark");
         }
       } else {
-        let check = mediaQuery.matches ? "dark" : "light"
-        setMode(check)
-        window.localStorage.setItem("theme", check)
+        let check = mediaQuery.matches ? "dark" : "light";
+        setTheme(check);
+        window.localStorage.setItem("theme", check);
 
-        if(check === "dark") {
-          document.documentElement.classList.add("dark")
+        if (check === "dark") {
+          document.documentElement.classList.add("dark");
         } else {
-          document.documentElement.classList.remove("dark")
+          document.documentElement.classList.remove("dark");
         }
       }
-    }
+    };
 
-    handleChange()
+    handleChange();
 
-    mediaQuery.addEventListener("change", handleChange)
+    mediaQuery.addEventListener("change", handleChange);
 
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [])
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   useEffect(() => {
-    if(mode === "dark") {
-      window.localStorage.setItem("theme", "dark")
-      document.documentElement.classList.add("dark")
+    if (theme === "dark") {
+      window.localStorage.setItem("theme", "dark");
+      document.documentElement.classList.add("dark");
     }
-    if(mode === "light") {
-      window.localStorage.setItem("theme", "light")
-      document.documentElement.classList.remove("dark")
+    if (theme === "light") {
+      window.localStorage.setItem("theme", "light");
+      document.documentElement.classList.remove("dark");
     }
-  }, [mode])
+  }, [theme]);
 
-  return [mode, setMode] as const
+  return [theme, setTheme] as const;
 }

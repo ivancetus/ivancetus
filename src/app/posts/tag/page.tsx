@@ -1,9 +1,13 @@
+"use client";
 import { allPosts, Post } from "contentlayer/generated";
 import PostList from "@/components/PostList";
-import { useEffect, useState } from "react";
+//import * as console from "console";
+import { useState } from "react";
+import Tags from "@/components/Tags";
+//import { useEffect, useState } from "react";
 
 export default function PostTags() {
-  const tags = allPosts.flatMap((post: Post) => [post.tags]);
+  //const [filteredPosts, setFilteredPosts] = useState<Post[]>();
   // const tags = [...new Set()];
   //   const allTags = []
   //   for (posts in allPosts) {
@@ -20,12 +24,8 @@ export default function PostTags() {
   //         }
   //         }
   // }
-
-  // useEffect(() => {
-  //   const filterByTag: string[] =
-  // });
   return (
-    <>{tags}</>
+    <Tags />
     // <ul className="divide-y divide-zinc-300 transition-colors dark:divide-zinc-500">
     //   {postsFilteredByTag.map((post, index) => (
     //     <PostList index={index} key={post.slug} post={post} />

@@ -1,0 +1,172 @@
+---
+title: Fetch movide titles published in the US (2000 to 2022) from Wikipedia
+description: python script, scrap wiki data
+slug: wiki-scrap-american-movie-title
+date: 2023-06-13
+type: Post
+tags: ['python', 'web-scraping', 'wikipedia']
+---
+## Fetch movide titles published in the US (2000 to 2022) from Wikipedia
+
+```python:wikiscrap.py showLineNumbers
+import ssl
+import pandas as pd
+import re
+import wikipediaapi
+import time
+from numpy.random import default_rng
+from urllib.parse import unquote
+
+# default_rng
+# https://numpy.org/doc/stable/reference/random/index.html#quick-start
+
+pd.options.display.max_columns = None
+pd.options.display.max_rows = None
+pd.options.display.max_colwidth = None
+pd.options.display.expand_frame_repr = False
+
+
+def get_title_and_url_pair(year):
+    """
+    read_html, read html element -> table
+    some page have seperated tables, use pd.concat to merge them together
+    ignore_index=True, sort=False -> generate new index based on all data collected
+    """
+    url = f"https://en.wikipedia.org/wiki/List_of_American_films_of_{year}"
+    year = pd.read_html(
+        url,
+        extract_links="all"
+    )
+    return pd.concat(
+        [
+            pd.DataFrame(
+                table[("Title", None)].to_list(), columns=['Title', 'URL']
+            ) for table in year
+            if table.get(("Title", None)) is not None and len(table) > 10
+        ],
+        ignore_index=True, sort=False
+    )
+
+
+def replace_url_with_title(url):
+    """
+    decode url to string, so that wikipediaapi can work properly, %27 -> '
+    return None if regex didn't match
+    """
+    try:
+        
+        title = unquote(re.search("(?<=/wiki/).*", url).group())
+    except:
+        title = None
+    return title
+
+
+def get_translation_and_pageurl(title):
+    ls = []
+    if title is None:
+        ls = ["N/A", "N/A", "N/A", "N/A"]
+    else:
+        wiki_wiki = wikipediaapi.Wikipedia('en')
+        page_en = wiki_wiki.page(title)
+        if 'zh' in page_en.langlinks:
+            page_zh = page_en.langlinks['zh']
+            try:
+                tables = pd.read_html(page_zh.fullurl)
+                for table in tables:
+                    for column in table.columns:
+                        if (table[column].eq("各地片名")).any():
+                            df = pd.DataFrame(table.values, columns=['region', 'translation'])
+                            df.drop(df.index[:df[df['region'] == '各地片名'].index[0] + 1], inplace=True)
+                            df.reset_index(drop=True, inplace=True)
+                            
+                            # catch all cases when one or more element(s) not found
+                            if len(df) == 1:
+                                if (df['region'].eq("中國大陸")).any() or (df['region'].eq("中国大陆")).any():
+                                    df.loc[2] = ['臺灣', 'N/A']
+                                    df.loc[1] = ['香港', 'N/A']
+                                elif (df['region'].eq("香港")).any():
+                                    df.loc[2] = ['臺灣', 'N/A']
+                                    df.loc[1] = df.loc[0]
+                                    df.loc[0] = ['中國大陸', 'N/A']
+                                else:
+                                    df.loc[2] = df.loc[0]
+                                    df.loc[1] = ['香港', 'N/A']
+                                    df.loc[0] = ['中國大陸', 'N/A']
+                            if len(df) == 2:
+                                if not (df['region'].eq("中國大陸")).any() and not (df['region'].eq("中国大陆")).any():
+                                    df.loc[2] = df.loc[1]
+                                    df.loc[1] = df.loc[0]
+                                    df.loc[0] = ['中國大陸', 'N/A']
+                                elif not (df['region'].eq("香港")).any():
+                                    df.loc[2] = df.loc[1]
+                                    df.loc[1] = ['香港', 'N/A']
+                                else:
+                                    df.loc[2] = ['臺灣', 'N/A']
+                            
+                            # cut out data not needed, e.g. 新加坡譯名
+                            if len(df) >= 4:
+                                df.drop(df.index[3:], inplace=True)
+                            
+                            # get rid of [註 *] on titles
+                            for title in df['translation'].to_list():
+                                if re.search("\\[.*]$", title) is not None:
+                                    ls.append(title.replace(re.search("\\[.*]$", title).group(), ''))
+                                else:
+                                    ls.append(title)
+                            ls.append(page_en.fullurl)
+                            break
+                # after went through all table elements but couldn't find column contains "各地片名"
+                if not ls:
+                    ls = ["N/A", "N/A", "N/A", page_en.fullurl]
+            # if there is no table elements present, hence failed to call function read_html
+            except ValueError:
+                ls = ["N/A", "N/A", "N/A", page_en.fullurl]
+        # if no 'zh' page exist
+        else:
+            ls = ["N/A", "N/A", "N/A", page_en.fullurl]
+    return ls
+
+
+if __name__ == '__main__':
+    """
+    specifiy start and end of year(s), latest list on wiki is 2023
+    when fetch page data through wikipediaapi, sometimes ssl error might occur, 
+    using while loop to retry on that failed page 
+    """
+    columnNames = ['Mainland China', 'Hong Kong', 'Taiwan', 'url', 'United States']
+    year = 2011
+    yearEnd = 2022
+    while year < yearEnd+1:
+        t1 = time.time()
+        print("starts:", year)
+        infoLists = []
+        try:
+            df = get_title_and_url_pair(year)   # potential ssl error
+            df.dropna(inplace=True)
+            for index, url in enumerate(df['URL']):
+                print(f"{index+1}/{len(df['URL'])} fetching data ...")
+                runFlag = True
+                while runFlag:
+                    try:
+                        info = get_translation_and_pageurl(replace_url_with_title(url))  # potential ssl error
+                    except ssl.SSLError as e:
+                        print("connection unstable at stage: get_translation_and_pageurl\n", "error message:\n", e, "\nretrying ...")
+                        time.sleep(default_rng().uniform(30, 61))
+                        continue
+                    infoLists.append(info)
+                    runFlag = False
+                time.sleep(default_rng().uniform(1, 4))
+        except ssl.SSLError as e:
+            print("connection unstable at stage: get_title_and_url_pair\n", "error message:\n", e, "\nretrying ...")
+            time.sleep(default_rng().uniform(30, 61))
+            continue
+        df.drop(columns='URL', axis=1, inplace=True)
+        df.rename(columns={'Title': columnNames[4]}, inplace=True)
+        for i in range(len(columnNames)-1):
+            df[columnNames[i]] = [infoList[i] for infoList in infoLists]
+        df.to_excel(f"{year}.xlsx")
+        t2 = time.time()
+        print(f"ends: {year}\ntime spent: {t2-t1:.2f}s")
+        year += 1
+
+```

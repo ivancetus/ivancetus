@@ -1,14 +1,24 @@
 "use client";
-import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useContext } from "react";
+import { MenuContext } from "@/context/MenuMobileContextProvider";
 
-const MotionLink = motion(Link);
+// const MotionLink = motion(Link);
 
 export default function Logo() {
+  const router = useRouter();
+  const { isOpen, setIsOpen } = useContext(MenuContext);
+  const handleClick = () => {
+    if (isOpen) {
+      setIsOpen(!isOpen);
+    }
+    router.push("/");
+  };
   return (
     <div className="flex items-center justify-center">
-      <MotionLink
-        href="/"
+      <motion.button
+        onClick={handleClick}
         className="
           h-8 flex items-center justify-center text-xl font-bold dark:text-light
         "
@@ -19,7 +29,7 @@ export default function Logo() {
         whileTap={{ scale: 0.98 }}
       >
         IVANCETUS
-      </MotionLink>
+      </motion.button>
     </div>
   );
 }
