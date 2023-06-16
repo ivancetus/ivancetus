@@ -46,4 +46,7 @@ npm install -D @types/nprogress
 
 // comment system, github oauth
 npm install @giscus/react
+
+// for vecel deployment to analyze traffic
+npm install @vercel/analytics
 ```

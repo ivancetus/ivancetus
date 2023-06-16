@@ -12,14 +12,14 @@ export default function Page() {
       <div className="grid grid-cols-12 gap-24 gap-y-24 xl:gap-x-16 lg:gap-x-8 sm:gap-y-18 sm:gap-x-0">
         <div className="col-span-12">
           <Projects
-            title="Task Tracker"
+            title="Youtube Download"
             summary="
-                Build a web-based application to manage tasks, allowing users to create, update, and delete tasks with deadlines. A great project for beginners to practice HTML, CSS, JavaScript, and basic CRUD operations.
+                Build with Nextjs 13 and Flask, a simple interface, takes two input data and respond with two button to press (sometimes alert window). This project was originated from a Python PyQt5 application, to read more, check out the article.
                 "
             img={featuredProject1}
-            projectLink="/"
-            articleLink="/"
-            githubLink="/"
+            projectLink="https://yt.ivancetus.com/"
+            articleLink="/posts/youtube-download-project"
+            githubLink="https://github.com/ivancetus/nextjs_hobby_frontend"
           />
         </div>
         <div className="col-span-12">

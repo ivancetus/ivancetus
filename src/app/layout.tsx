@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import ThemeContextProvider from "@/context/ThemeContextProvider";
 import MenuMobileContextProvider from "@/context/MenuMobileContextProvider";
 import StickyScroll from "@/components/StickyScroll";
+import { Analytics } from "@vercel/analytics/react";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
             <Navbar />
             <main className="w-full h-auto z-0 inline-block px-48 md:px-24 sm:px-8">
               {children}
+              <Analytics />
             </main>
             <Footer />
             <StickyScroll />

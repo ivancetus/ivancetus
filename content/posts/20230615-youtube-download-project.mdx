@@ -1,0 +1,31 @@
+---
+title: YouTube Download Project
+description: A PyQt5 application, utilize selenium
+slug: youtube-download-project
+date: 2023-06-15
+type: Post
+tags: ['python','pyqt5']
+---
+Check out these posts if you are interested in doing something similar.
+[Flask Api](/posts/youtube-download-app-flask)
+[Nextjs frontend](/posts/youtube-download-app-nextjs)
+
+
+## How I ended up in this position
+Building this application helped me understand the fundamentals of a GUI based python application using PyQt5, and how to make automatic web scraping program with selenium.
+However, to have other people utilize its functionality, there's a problem, the file size of the built app (using pyinstaller) is 109mb, and users might not be able to open it in their operating system, since it was never tested on other machine except on Windows.
+So I went on searching methods of putting this app on the web for people to access it, I found out I have to build an api endpoint and host it on a server, additionally, a frontend web page is also needed to not only serve as an entry point for users to interactive with, but also a bridge connecting client input and server responses.
+To make a list of things to build/work with, would look like this:
+- a python based api endpoint, hosted on a server and having as little downtime as possible
+- a frontend structure, to host and serve a website or a web page to connected users, also need to be hosted on a server
+
+Looks simple enough, just two steps! Right? There are many ways and services to host web applications/api, I looked up some freeCodeCamp articles, and decided to try Linode VPS and Nextjs.
+I have always wanted to learn the ways of operating linux system, mainly on how to host a server. I learned a few things about setting up server with WordPress at my local computer, but it was not enough, and not production ready.
+I do however built a simple member login system using the server set up WordPress provides, it was mostly php, some python and javascript. You can try it [here](http://cosmowhale.asuscomm.com/website/).
+However, my ip address have to be static which is practically not possible, and to minimize server downtime, I can't really be doing other heavy lifting stuff on my computer, such as training a model, or play resource demanding games.
+I had tried building the WordPress site, it was too limiting on things I could do, various templates and themes only provide minimal skeleton structure, so I kind of just left it as is, for now.
+
+To efficiently serve and maintain an api based on python, I have two choice, flask or django, I choose flask for this particular project for its relatively easy to understand structure.
+As for the frontend, I have to build this blog first, familiar myself with the building blocks of various frontend development tools.
+
+## to be continued ...
