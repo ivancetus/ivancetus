@@ -1,126 +1,15 @@
 ---
-title: YouTube Download App
-description: Build with Nextjs 13 (on Vercel) and Flask Api (on Linode VPS)
-slug: youtube-download-app
+title: YouTube Download App Part 2 Nextjs
+description: Build with Nextjs 13 (on Vercel) and Flask Api (on Linode VPS) Part 2
+slug: youtube-download-app-nextjs
 date: 2023-06-16
 type: Post
-tags: ['nextjs','flask','vps']
+tags: ['nextjs','fetch']
 ---
-## Might implement Authentication at some point
-Not sure how much traffic this app will generate, I have shared it with some my colleauges.
+Might implement Authentication at some point, not sure how much traffic this app will generate, I have shared it with some my colleauges.
 
-## Demo Site
-https://yt.ivancetus.com/
-
-## api
-not accessible thourgh GET
-https://flask.ivancetus.com/
-
-## Flask Api Backend
-start a python project, then write requirement.txt
-```txt:requirement.txt
-Flask
-Flask-Cors
-pytube
-httpie
-gunicorn
-```
-httpie for testing api,   
-flask-cors for cross-origin communication,
-pytube handles YouTube download function,
-gunicorn to host project
-
-### write the main function to handle download
-```python:youtube_download.py
-import os.path
-import pathlib
-from pytube import YouTube
-from pytube.exceptions import RegexMatchError
-
-
-def get_yt(youtube_url, file_format):
-    try:
-        yt = YouTube(youtube_url)
-    except RegexMatchError as e:
-        print(e)
-        return
-    except Exception as e:
-        print(e)
-        return
-    file_format = file_format.rstrip().lower()
-    output_path = os.path.join(pathlib.Path().resolve(), f"{file_format}/").replace("\\", "/")
-
-    file_name = yt.title.replace("\\", "").replace("/", "_").replace(":", "_").replace("*", "") \
-        .replace("?", "").replace("\"", "").replace("<", "").replace(">", "").replace("|", "--").replace(' ', '-')
-    file_w_extension = f'{file_name}.{file_format}'
-
-    if file_format == 'mp3':
-        yt.streams.filter() \
-            .get_audio_only() \
-            .download(output_path=output_path, filename=file_w_extension)
-    elif file_format == 'mp4':
-        yt.streams.filter(progressive=True, file_extension='mp4') \
-            .order_by('resolution') \
-            .desc() \
-            .first() \
-            .download(output_path=output_path, filename=file_w_extension)
-    else:
-        print("something went wrong, not valid file format (MP3 or MP4)")
-    file_full_path = os.path.join(output_path, file_w_extension)
-    print(file_full_path)
-    return file_full_path
-
-
-"""
-for debugging pytube function
-"""
-# if __name__ == '__main__':
-#     try:
-#         get_yt('https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'MP3')
-#     except RegexMatchError as e:
-#         print(e)
-#     except Exception as e:
-#         print(e)
-```
-### write main flask script
-```python:app.py
-import logging
-from youtube_download import get_yt
-from flask import Flask, request, send_file
-from flask_cors import CORS
-
-# save log file
-logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
-app = Flask(__name__)
-cors = CORS(app, expose_headers='Content-Disposition', resources={r'/': {'origins': '*'}})
-
-
-@app.route('/', methods=['POST'])
-def yt():
-    file_path = ""
-    data = request.get_json()
-    youtube_url = data['url']
-    file_format = data['format']
-    logging.info(f'Processed json request: {data}')
-    try:
-        file_path = get_yt(youtube_url, file_format)
-    except Exception as e:
-        logging.error(f'Error occurred: {str(e)}')
-    if not file_path:
-        response = "bad request!", 400
-    else:
-        response = send_file(file_path, mimetype='audio/mpeg', as_attachment=True)
-    return response
-
-
-if __name__ == '__main__':
-    app.run()    
-```
-### start dev server for testing 
-`python3 -m flask run`  
-using httpie, send post request to test api
-`http post http://localhost:5000 url=https://www.youtube.com/watch?v=dQw4w9WgXcQ format=MP3`
+## Demo Site and api
+[Demo Site](https://yt.ivancetus.com/)
 
 ## Nextjs Frontend
 to use app router `create-next-app@latest`, select tailwindcss
@@ -195,7 +84,6 @@ export default function GeneralContextProvider({
   );
 }
 ```
-
 ### Layout
 ```tsx:src/app/layout.tsx
 import "./globals.css";
@@ -229,7 +117,7 @@ export default function RootLayout({
 ```
 ### Page
 Icon svgs are from online resources, converted to react components using [SVGR.com](https://react-svgr.com/playground/)
-```src/app/page.tsx
+```tsx:src/app/page.tsx
 import UrlInput from "@/components/UrlInput";
 import FormatInput from "@/components/FormatInput";
 import SendRequest from "@/components/SendRequest";
@@ -621,73 +509,8 @@ export default function SendRequest() {
   );
 }
 ```
+### run test server
+`next dev` and test its functions
+
 ### Deploy to Vercel, need to have a GitHub account
 Share project on GitHub, pull from vercel dashboard, then deploy. API endpoint need to be https, or builds on vercel won't be able to connect.
-
-## Flask Api VPS Deployment (Ubuntu)
-1. check if python3 is installed `$ python3 --version`  
-2. check pip version, follow instruction on screen if not installed `$ pip --version`
-3. cd into project directory, "flask_api",
- initiate venv `$ python3 -m venv venv`
-4. activate venv `$ source venv/bin/activate`
-5. install packages `$ pip install -r requirements.txt`
-6. start server `$ python3 -m flask run`
-7. check if any error, proceed next step, exit venv `(venv)...$ deactivate`
-### set up gunicorn service, auto restart service on system reboot  
-`$ sudo nano /etc/systemd/system/flask_api.service`
-```service
-[Unit]
-Description=Gunicorn instance to serve flask_api
-After=network.target
-
-[Service]
-User=ivan
-Group=www-data
-WorkingDirectory=/home/ivan/flask_api
-Environment="PATH=/home/ivan/flask_api/venv/bin"
-ExecStart=/home/ivan/flask_api/venv/bin/gunicorn --workers 1 --bind unix:flask_api.sock -m 007 app:app
-
-[Install]
-WantedBy=multi-user.target
-```
-### start service
-`$ sudo systemctl start flask_api`  
-`$ sudo systemctl enable flask_api`  
-`$ sudo systemctl status flask_api`
-
-### set up nginx 
-`$ sudo nano /etc/nginx/sites-available/flask_api`
-```nginx:flask_api
-server {
-  listen 80;
-  listen [::]:80;
-  server_name flask.ivancetus.com;
-
-  location / {
-    include proxy_params;
-    proxy_pass http://unix:/home/ivan/flask_api/flask_api.sock;
-  
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
-  }
-}
-```
-- make symbolic link `$ sudo ln -s /etc/nginx/sites-available/flask_api /etc/nginx/sites-enabled/`  
-- test if error `$ sudo nginx -t`  
-- restart nginx `$ sudo systemctl restart nginx`  
-- apply ssl through cerbot `$ sudo certbot --nginx -d flask.ivancetus.com`  
-
-### if 502 gateway error
-nginx cannot access gunicorn's socket file, need at least 0755 permission  
-`$ sudo chmod 755 /home/ivan`
-
-- `$ sudo less /var/log/nginx/error.log`: checks the Nginx error logs.
- - `$ sudo less /var/log/nginx/access.log`: checks the Nginx access logs.
- - `$ sudo journalctl -u nginx`: checks the Nginx process logs.
- - `$ sudo journalctl -u flask_api`: checks your Flask app’s Gunicorn logs.
-
-## Reference
-[How To Serve Flask Applications with Gunicorn and Nginx on Ubuntu 22.04](https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-22-04)
