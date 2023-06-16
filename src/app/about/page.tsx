@@ -46,7 +46,7 @@ export default function AboutPage() {
             SKILL
           </h2>
           <p className="font-medium text-lg md:text-base">
-            NextJS, Tailwind CSS, HTML, Python, GraphQL
+            NextJS, Tailwind CSS, HTML, Python, GraphQL, Typescript
           </p>
         </div>
         <div className="pt-12 col-span-8 flex flex-col items-start justify-start order-3">

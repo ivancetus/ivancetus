@@ -11,9 +11,9 @@
     @apply ml-auto mr-auto;
   }
 
-  :not(pre) > code {
-    @apply rounded-md font-light px-1.5 py-1 bg-zinc-300 text-zinc-500
-  }
+  //:not(pre) > code {
+  //  @apply rounded-md font-light px-1.5 py-0.5 bg-zinc-300 text-zinc-500 dark:bg-zinc-500 dark:text-zinc-300
+  //}
 
   pre {
     @apply rounded-b-lg
