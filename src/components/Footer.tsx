@@ -5,7 +5,7 @@ export default function Footer() {
     <footer
       className="
         w-full lg:text-base xs:text-sm
-        text-zinc-500
+        text-zinc-700
         dark:text-zinc-200
         "
     >

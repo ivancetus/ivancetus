@@ -1,6 +1,6 @@
 import Image from "next/image";
 import AnimatedText from "@/components/AnimatedText";
-import homePic from "../../public/images/ivancetus_Weaving_Ideas_Into_Digital_Realities_blue_theme_soft_2-transformed.png";
+import homePic from "../../public/images/ivancetus_Weaving_Ideas_Into_Digital_Realities_blue_theme_soft_2_bg.png";
 
 export default function HomePage() {
   return (
