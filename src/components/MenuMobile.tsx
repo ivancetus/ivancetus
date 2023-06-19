@@ -75,38 +75,38 @@ export default function MenuMobile() {
         </nav>
         <MotionIcons />
       </motion.div>
-      {/*{isOpen ? (*/}
-      {/*  <aside>*/}
-      {/*    <motion.button*/}
-      {/*      onClick={handleClick}*/}
-      {/*      initial={{ opacity: 0 }}*/}
-      {/*      animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? -1 : "0%" }}*/}
-      {/*      transition={{ ease: "easeInOut" }}*/}
-      {/*      className={`*/}
-      {/*        hidden lg:flex flex-col z-5  min-w-full*/}
-      {/*        top-0 left-0 h-full w-full fixed*/}
-      {/*        bg-light/75 dark:bg-dark/75 backdrop-blur-md*/}
-      {/*        border-r border-zinc-300 dark:border-zinc-500 shadow-2xl cursor-default*/}
-      {/*        ${isOpen ? "z-5" : "-z-10"} */}
-      {/*      `}*/}
-      {/*    ></motion.button>*/}
-      {/*  </aside>*/}
-      {/*) : null}*/}
-      <aside>
-        <motion.button
-          onClick={handleClick}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? -1 : "0%" }}
-          transition={{ ease: "easeInOut", duration: 0.2 }}
-          className={`
+      {isOpen ? (
+        <aside>
+          <motion.button
+            onClick={handleClick}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? -1 : "0%" }}
+            transition={{ ease: "easeInOut" }}
+            className={`
               hidden lg:flex flex-col z-5  min-w-full
               top-0 left-0 h-full w-full fixed
               bg-light/75 dark:bg-dark/75 backdrop-blur-md
-              border-r border-zinc-300 dark:border-zinc-500 shadow-2xl cursor-default
-              ${isOpen ? "z-5" : "hidden"} 
+              border-r border-zinc-300 dark:border-zinc-500 shadow-none cursor-default
+              ${isOpen ? "z-5" : "-z-10"} 
             `}
-        ></motion.button>
-      </aside>
+          ></motion.button>
+        </aside>
+      ) : null}
+      {/*<aside>*/}
+      {/*  <motion.button*/}
+      {/*    onClick={handleClick}*/}
+      {/*    initial={{ opacity: 0 }}*/}
+      {/*    animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? -1 : "0%" }}*/}
+      {/*    transition={{ ease: "easeInOut", duration: 0.2 }}*/}
+      {/*    className={`*/}
+      {/*        hidden lg:flex flex-col z-5  min-w-full*/}
+      {/*        top-0 left-0 h-full w-full fixed*/}
+      {/*        bg-light/75 dark:bg-dark/75 backdrop-blur-md*/}
+      {/*        border-r border-zinc-300 dark:border-zinc-500 cursor-default shadow-none*/}
+      {/*        ${isOpen ? "z-5" : "-z-10"} */}
+      {/*      `}*/}
+      {/*  ></motion.button>*/}
+      {/*</aside>*/}
     </>
   );
 }
