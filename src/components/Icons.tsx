@@ -511,3 +511,23 @@ export const DocumentIcon = ({ className, ...rest }: { className: string }) => (
     />
   </svg>
 );
+
+export const ToTopArrow = ({ className, ...rest }: { className: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={800}
+    height={800}
+    fill="none"
+    viewBox="0 0 48 48"
+    className={`w-full h-auto ${className}`}
+    {...rest}
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={4}
+      d="M24.008 14.1V42M12 26l12-12 12 12M12 6h24"
+    />
+  </svg>
+);
