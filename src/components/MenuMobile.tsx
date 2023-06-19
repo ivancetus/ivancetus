@@ -103,7 +103,7 @@ export default function MenuMobile() {
               top-0 left-0 h-full w-full fixed
               bg-light/75 dark:bg-dark/75 backdrop-blur-md
               border-r border-zinc-300 dark:border-zinc-500 shadow-2xl cursor-default
-              ${isOpen ? "z-5" : "-z-10"} 
+              ${isOpen ? "z-5" : "hidden"} 
             `}
         ></motion.button>
       </aside>
