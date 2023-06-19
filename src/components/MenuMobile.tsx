@@ -87,8 +87,8 @@ export default function MenuMobile() {
               hidden lg:flex flex-col z-5  min-w-full
               top-0 left-0 h-full w-full fixed
               bg-light/75 dark:bg-dark/75 backdrop-blur-md
-              border-r border-zinc-300 dark:border-zinc-500 shadow-none cursor-default !focus:outline-none !active:bg-transparent !active:shadow-none
-              ${isOpen ? "z-5" : "-z-10 !bg-transparent"} 
+              border-r border-zinc-300 dark:border-zinc-500 cursor-default
+              ${isOpen ? "z-5" : "-z-10"} 
             `}
           ></motion.button>
         </aside>
