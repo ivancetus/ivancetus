@@ -4,7 +4,7 @@ import homePic from "../../public/images/ivancetus_Weaving_Ideas_Into_Digital_Re
 
 export default function HomePage() {
   return (
-    <main className="flex items-center w-full min-h-screen ">
+    <main className="flex items-center w-full h-auto">
       <div className="flex items-center justify-between w-full lg:flex-col">
         {/* Image */}
         <div className="w-1/2 md:w-full">
