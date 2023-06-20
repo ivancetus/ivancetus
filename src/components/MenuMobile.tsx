@@ -8,8 +8,7 @@ import { MenuContext } from "@/context/MenuMobileContextProvider";
 
 export default function MenuMobile() {
   const { isOpen, setIsOpen } = useContext(MenuContext);
-  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
+  const handleClick = () => {
     setIsOpen(!isOpen);
   };
 
