@@ -14,9 +14,9 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
-            // pre: false,
-            // code: false,
-            // "pre code": false,
+            pre: false,
+            code: false,
+            "pre code": false,
             // "code::before": false,
             // "code::after": false,
           },
