@@ -2,7 +2,7 @@
 title: MySQL commands 
 description: a collection of frequently used MySQL commands
 slug: mysql-commands
-date: 2023-06-29
+date: 2023-06-28
 type: Post
 tags: ['mysql','note']
 ---

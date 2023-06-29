@@ -7,14 +7,13 @@ type: Post
 tags: ['backend','bootdotdev']
 ---
 ## Startup
-Purpose of undertaking this challenge is to get hired as a backend developer.\
+Purpose of undertaking this challenge is to get hired as a backend developer.
 
 Goals for the year:
 - try my best to master GoLang and Python
 - finish Boot.dev courses
 - practice code on Leetcode
 - deploy production code / projects
-- 
 When I have time or want to take a break from the above tasks, I would work on Hobby 1 & 2.
 
 ## Resources
@@ -27,12 +26,15 @@ When I have time or want to take a break from the above tasks, I would work on H
 ### Hobby, AI courses from Microsoft
 [Artificial Intelligence for Beginners - A Curriculum](https://microsoft.github.io/AI-For-Beginners/?fbclid=IwAR1ELSWvRHOkslpNDDkASmvjll0rNdCwCCyQSp8P8cCCg6GCuqw2lu9-qns)\
 [Machine Learning for Beginners - A Curriculum](https://microsoft.github.io/ML-For-Beginners/?fbclid=IwAR215UsxcrYJ9bA-jmWxRfyrc1WLEZCfl9QfOJ4SubW546re8mzG7erYMIY#/)\
-[Data Science for Beginners - A Curriculum](https://microsoft.github.io/Data-Science-For-Beginners/?fbclid=IwAR3XzLGSZdX0J0ElyH4HpGT-aIeePmAf9-wDjlG1dq_-Itj4-hMTg2FsWSM#/)\
+[Data Science for Beginners - A Curriculum](https://microsoft.github.io/Data-Science-For-Beginners/?fbclid=IwAR3XzLGSZdX0J0ElyH4HpGT-aIeePmAf9-wDjlG1dq_-Itj4-hMTg2FsWSM#/)
 
 ### Hobby2, PyTorch course
 [PyTorch - freeCodeCamp video course](https://www.youtube.com/watch?v=V_xro1bcAuA)
 
 ## Notes and thoughts
 Kids are graduating from the kindergarten where I work as a teacher. Although graduation happens every year, this year, however, is a little different.
-I had made my mind to become a software engineer and to seek career on the tech world. Everyday after work, I sit before my computer to code and to learn. I have read a lot of documentary, wrote a bunch of code, deployed a few projects, and yet I feel a bit hollow. By taking this challenge, I expect to see this hollowness filled.
+
+I had made my mind to become a software engineer and to seek career on the tech world. 
+
+Every day after work, I sit before my computer to code and to learn. I have read a lot of documentary, wrote a bunch of code, deployed a few projects, and yet I feel a bit hollow. By taking this challenge, I expect to see this hollowness filled.
 
