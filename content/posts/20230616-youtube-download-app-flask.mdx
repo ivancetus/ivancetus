@@ -6,6 +6,30 @@ date: 2023-06-16
 type: Post
 tags: ['flask','vps','python']
 ---
+### adjustment to pytube
+Due to YouTube's recent changes (2023-07-01), until pytube updates, to be able to download again, do the following steps:
+## Linux
+`~flask_api/venv/lib/python3.11/site-packages/pytube$ nano cipher.py`
+```python:cipher.py
+    ....
+
+    # old
+    function_patterns = [
+        ....
+        r'a\.[a-zA-Z]\s*&&\s*\([a-z]\s*=\s*a\.get\("n"\)\)\s*&&\s*'
+        r'\([a-z]\s*=\s*([a-zA-Z0-9$]+)(\[\d+\])?\([a-z]\)',
+    ]
+
+    # new
+    function_patterns = [
+        ....
+        r'a\.[a-zA-Z]\s*&&\s*\([a-z]\s*=\s*a\.get\("n"\)\)\s*&&.*?\|\|\s*([a-z]+)',
+        r'\([a-z]\s*=\s*([a-zA-Z0-9$]+)(\[\d+\])?\([a-z]\)',
+    ]
+
+    ...
+```
+
 Haven't test this app fully, can handle up to 30 minutes long video currently, it would be nice to have a display on the page notifying user how long this process might take.
 
 Might implement Authentication at some point, not sure how much traffic this app will generate, I have shared it with some of my colleges.
@@ -134,7 +158,7 @@ using httpie, send post request to test api
 7. check if any error, proceed next step, exit venv `(venv)...$ deactivate`
 ### set up gunicorn service, auto restart service on system reboot  
 `$ sudo nano /etc/systemd/system/flask_api.service`
-```service
+```nginx
 [Unit]
 Description=Gunicorn instance to serve flask_api
 After=network.target
@@ -178,6 +202,7 @@ server {
 - test if error `$ sudo nginx -t`  
 - restart nginx `$ sudo systemctl restart nginx`  
 - apply ssl through cerbot `$ sudo certbot --nginx -d flask.ivancetus.com`
+- to monitor access log `~$ tail -f less flask_api/app.log`
 
 Now test post request to https://flask.ivancetus.com and check if any errors.
 
