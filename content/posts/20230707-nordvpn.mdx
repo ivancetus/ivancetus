@@ -1,0 +1,57 @@
+---
+title: How to set up NordVPN on Linode VPS
+description: How to connect via masked IP, and be connected via specific ports using NordVPN on Linode 
+slug: how-to-set-up-nordvpn-on-linode-vps
+date: 2023-07-07
+type: Post
+tags: ['backend', 'linux', 'nordvpn', 'linode']
+---
+
+## set up NordVPN
+### Install
+[NordVPN on how to install on Linux](https://support.nordvpn.com/Connectivity/Linux/1325531132/Installing-and-using-NordVPN-on-Debian-Ubuntu-Raspberry-Pi-Elementary-OS-and-Linux-Mint.htm)
+
+```bash
+$ sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)
+```
+then follow on-screen instructions, may have to reboot
+
+### Login
+`$ nordvpn login`\
+this will return a link, open in local computer's browser,\
+once loggin, copy the url of **Continue**,\
+then on VPS: `$ nordvpn login --callback "url"`
+
+### Before connecting with NordVPN
+Do the following before activating NordVPN on VPS machine such as linode or you will lose connection via ssh.
+
+if ssh connection lost, you have to connect via LISH console in linode's Cloud Manager, to login, provide a user and password that's on that VPS system.
+1. `$ nordvpn whitelist add port 22`   
+  if hosting website, add port 80, 443 as well
+
+2. set up ip route, example ip 11.22.33.44, [reference](https://www.linode.com/community/questions/7381/openvpn-client-connected-to-a-server-while-listening-to-ssh)\
+`$ sudo ip rule add from 11.22.33.44 table 128`\
+`$ sudo ip route add table 128 to 11.22.33.0/24 dev eth0`\
+`$ sudo ip route add table 128 default via 11.22.33.1`
+
+other useful commands:\
+`$ route -n`\
+`$ ip route show` \
+`$ ip rule show`
+
+to update values, use 'change' instead of add
+
+3. connect NordVPN `$ nordvpn c`
+4. show current IP `$ curl ifconfig.me` or `$ nordvpn status`
+
+### use nordvpn whitelist instead
+(optional) to disallow traffic from all other ports, set up iptables as follows
+```bash
+$ iptables -A INPUT -d 11.22.33.44 -p tcp --dport 22 -j ACCEPT
+$ iptables -A INPUT -d 11.22.33.44 -j DROP
+```
+
+### What this does?
+- The connecting IP address from your Linode VPS can be checked by `$ curl ifconfig.me`.
+- HTTP connection through port 80, 443 to Linode VPS is whitelisted by NordVpn.
+- SSH connection through port 22 to Linode VPS is whitelisted by NordVPN.

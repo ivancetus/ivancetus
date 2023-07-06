@@ -158,7 +158,7 @@ using httpie, send post request to test api
 7. check if any error, proceed next step, exit venv `(venv)...$ deactivate`
 ### set up gunicorn service, auto restart service on system reboot  
 `$ sudo nano /etc/systemd/system/flask_api.service`
-```nginx
+```nginx:flask_api.service
 [Unit]
 Description=Gunicorn instance to serve flask_api
 After=network.target
